@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { fw } from "@fireweaveai/web-sdk/start";
 import { Button } from "../../components/Button";
 import { COPY } from "../../lib/copy";
 import { ERROR_CODES } from "../../lib/errors";
@@ -24,6 +25,10 @@ export default function LoginPage() {
       setPending(false);
       setError(COPY.signInError);
       return;
+    }
+    const body = (await res.json().catch(() => null)) as { user?: { id?: string; email?: string } } | null;
+    if (body?.user?.id) {
+      await fw.identify(body.user.id, { email: body.user.email ?? String(form.get("email") ?? "") });
     }
     window.location.href = "/inbox";
   }

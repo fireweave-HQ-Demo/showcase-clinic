@@ -4,6 +4,8 @@ import { Calendar, FileCheck, Inbox, LayoutDashboard, Mic, Settings, Sliders } f
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
+import { fw } from "@fireweaveai/web-sdk/start";
 import { useCounts } from "../lib/counts";
 import { AlertPanel } from "./AlertPanel";
 import { Button } from "./Button";
@@ -13,6 +15,7 @@ type Props = {
   userName: string;
   role: string;
   userId: string;
+  email: string;
 };
 
 const today: Array<{ href: string; label: string; icon: LucideIcon; badge?: "inbox" | "pa" }> = [
@@ -50,13 +53,18 @@ function NavItem({
   );
 }
 
-export function Sidebar({ clinicName, userName, role, userId }: Props) {
+export function Sidebar({ clinicName, userName, role, userId, email }: Props) {
   const path = usePathname();
   const { counts } = useCounts();
   const active = (href: string) => path === href || path.startsWith(`${href}/`) || (href === "/auth" && path.startsWith("/prior-auth"));
 
+  useEffect(() => {
+    void fw.identify(userId, { email });
+  }, [userId, email]);
+
   async function signOut() {
     await fetch("/api/auth/sign-out", { method: "POST" });
+    await fw.reset();
     window.location.href = "/login";
   }
 
@@ -82,7 +90,7 @@ export function Sidebar({ clinicName, userName, role, userId }: Props) {
             badge={item.badge === "inbox" ? counts.inbox : item.badge === "pa" ? counts.priorAuth : undefined}
           />
         ))}
-        <AlertPanel userId={userId} />
+        <AlertPanel />
       </div>
       <div className="nav-section setup">
         <div className="nav-label">Setup</div>

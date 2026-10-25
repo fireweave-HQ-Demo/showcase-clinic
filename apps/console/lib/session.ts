@@ -5,6 +5,7 @@ const API = process.env.API_INTERNAL_URL ?? "http://localhost:4000";
 
 export type ShellSession = {
   userId: string;
+  email: string;
   userName: string;
   role: string;
   clinicName: string;
@@ -34,7 +35,9 @@ export async function loadShellSession(): Promise<ShellSession> {
     apiGet("/api/auth/organization/list", cookie),
   ]);
   if (!sessionRes.ok) redirect("/login");
-  const session = (await sessionRes.json().catch(() => null)) as { user?: { id?: string; name?: string } } | null;
+  const session = (await sessionRes.json().catch(() => null)) as {
+    user?: { id?: string; name?: string; email?: string };
+  } | null;
   if (!session?.user?.id) redirect("/login");
   const me = meRes.ok ? ((await meRes.json()) as { role?: string }) : {};
   const list = orgsRes.ok
@@ -43,6 +46,7 @@ export async function loadShellSession(): Promise<ShellSession> {
   const rows = Array.isArray(list) ? list : list?.organizations ?? [];
   return {
     userId: session.user.id,
+    email: session.user.email ?? "",
     userName: session.user.name ?? "",
     role: titleCaseRole(me.role ?? "Staff"),
     clinicName: rows[0]?.name ?? "",

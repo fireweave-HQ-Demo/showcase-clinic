@@ -8,6 +8,7 @@
     "./sql": "./migrations/0001_init.sql"
   },
   "dependencies": {
+    "@fireweaveai/server-sdk": "^3.0.0",
     "drizzle-orm": "0.44.6"
   },
   "devDependencies": {

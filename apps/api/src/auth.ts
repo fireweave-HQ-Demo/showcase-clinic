@@ -1,6 +1,8 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { organization } from "better-auth/plugins";
+import { eq } from "drizzle-orm";
+import { fw } from "@fireweaveai/server-sdk/start";
 import { account, invitation, member, organization as organizationTable, session, user, verification } from "@clinic/db";
 import { db } from "./db";
 import { env } from "./env";
@@ -25,6 +27,22 @@ export const auth = betterAuth({
     schema: { user, session, account, verification, organization: organizationTable, member, invitation },
   }),
   emailAndPassword: { enabled: true, minPasswordLength: 8 },
+  databaseHooks: {
+    session: {
+      create: {
+        // FireWeave: bind identity on every sign-in (new session), unconditionally.
+        after: async (newSession) => {
+          const [owner] = await db.select().from(user).where(eq(user.id, newSession.userId)).limit(1);
+          if (!owner) return;
+          const activeOrganizationId = (newSession.activeOrganizationId as string | null | undefined) ?? null;
+          await fw.identify(owner.id, {
+            email: owner.email,
+            activeOrganizationId,
+          });
+        },
+      },
+    },
+  },
   plugins: [
     organization({
       organizationHooks: {

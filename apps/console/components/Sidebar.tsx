@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { fw } from "@fireweaveai/web-sdk/start";
 import { useCounts } from "../lib/counts";
+import { AlertPanel } from "./AlertPanel";
 import { Button } from "./Button";
 
 type Props = {
@@ -89,6 +90,7 @@ export function Sidebar({ clinicName, userName, role, userId, email }: Props) {
             badge={item.badge === "inbox" ? counts.inbox : item.badge === "pa" ? counts.priorAuth : undefined}
           />
         ))}
+        <AlertPanel />
       </div>
       <div className="nav-section setup">
         <div className="nav-label">Setup</div>

@@ -18,6 +18,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ARG FIREWEAVE_BROWSER_KEY
 ENV FIREWEAVE_BROWSER_KEY=$FIREWEAVE_BROWSER_KEY
 ENV FIREWEAVE_ENV=production
+ENV FIREWEAVE_URL=https://showcase-app-server.fireweave.ai
 RUN pnpm --filter @clinic/console build \
   && pnpm --filter @clinic/api deploy --prod --legacy /out/api
 

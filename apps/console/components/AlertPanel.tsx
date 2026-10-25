@@ -25,17 +25,17 @@ type Referral = {
 
 const CLOSED = new Set(["complete", "completed", "rejected", "ineligible", "fax_back", "failed"]);
 
-function alertPanelEnabled() {
+function alertPanelEnabled(userId: string) {
   // @fireweave-controlpoint alert-side-panel
-  return fw.controlPoints.getBooleanValue("alert-side-panel", false);
+  return fw.controlPoints.getBooleanValue("alert-side-panel", false, { targetingKey: userId });
 }
 
-function useAlertPanel() {
+function useAlertPanel(userId: string) {
   const [on, setOn] = useState(false);
   useEffect(() => {
-    setOn(alertPanelEnabled());
-    return fw.subscribe(() => setOn(alertPanelEnabled()));
-  }, []);
+    setOn(alertPanelEnabled(userId));
+    return fw.subscribe(() => setOn(alertPanelEnabled(userId)));
+  }, [userId]);
   return on;
 }
 
@@ -43,8 +43,8 @@ function isAlert(row: Referral) {
   return row.triage === "STAT" && !CLOSED.has(row.status);
 }
 
-export function AlertPanel() {
-  const enabled = useAlertPanel();
+export function AlertPanel({ userId }: { userId: string }) {
+  const enabled = useAlertPanel(userId);
   const now = useTick();
   const [open, setOpen] = useState(false);
   const [rows, setRows] = useState<Referral[] | null>(null);

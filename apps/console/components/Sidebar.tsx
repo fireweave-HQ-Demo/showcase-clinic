@@ -12,6 +12,7 @@ type Props = {
   clinicName: string;
   userName: string;
   role: string;
+  userId: string;
 };
 
 const today: Array<{ href: string; label: string; icon: LucideIcon; badge?: "inbox" | "pa" }> = [
@@ -49,7 +50,7 @@ function NavItem({
   );
 }
 
-export function Sidebar({ clinicName, userName, role }: Props) {
+export function Sidebar({ clinicName, userName, role, userId }: Props) {
   const path = usePathname();
   const { counts } = useCounts();
   const active = (href: string) => path === href || path.startsWith(`${href}/`) || (href === "/auth" && path.startsWith("/prior-auth"));
@@ -81,7 +82,7 @@ export function Sidebar({ clinicName, userName, role }: Props) {
             badge={item.badge === "inbox" ? counts.inbox : item.badge === "pa" ? counts.priorAuth : undefined}
           />
         ))}
-        <AlertPanel />
+        <AlertPanel userId={userId} />
       </div>
       <div className="nav-section setup">
         <div className="nav-label">Setup</div>

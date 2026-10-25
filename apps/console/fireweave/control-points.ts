@@ -4,5 +4,4 @@ import { defineControlPoints } from '@fireweaveai/web-sdk/start';
 
 export const controlPoints = defineControlPoints({
   'dashboard-remainder-panel': { local: true },
-  'alert-side-panel': { local: true },
 });

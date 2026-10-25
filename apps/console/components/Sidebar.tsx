@@ -5,6 +5,7 @@ import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCounts } from "../lib/counts";
+import { AlertPanel } from "./AlertPanel";
 import { Button } from "./Button";
 
 type Props = {
@@ -80,6 +81,7 @@ export function Sidebar({ clinicName, userName, role }: Props) {
             badge={item.badge === "inbox" ? counts.inbox : item.badge === "pa" ? counts.priorAuth : undefined}
           />
         ))}
+        <AlertPanel />
       </div>
       <div className="nav-section setup">
         <div className="nav-label">Setup</div>

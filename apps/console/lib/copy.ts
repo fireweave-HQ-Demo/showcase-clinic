@@ -1,4 +1,5 @@
 export const COPY = {
+  emptyAlerts: "No STAT faxes are waiting. Urgent referrals show up here.",
   emptyInbox: "No faxes yet.",
   emptyInboxCta: "Upload a referral",
   emptyAuth: "No completed referrals to authorize yet.",

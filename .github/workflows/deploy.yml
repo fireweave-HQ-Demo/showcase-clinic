@@ -33,6 +33,17 @@ jobs:
           docker build -f infra/docker/agent.Dockerfile -t ghcr.io/fireweave-hq-demo/clinic-agent:prod .
           docker build -f infra/docker/browser.prod.Dockerfile -t ghcr.io/fireweave-hq-demo/clinic-browser:prod .
 
+      - name: Remove old images on EC2
+        env:
+          HOST: ${{ secrets.EC2_HOST }}
+          USER: ${{ secrets.EC2_USER }}
+          KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          umask 077
+          printf '%s\n' "$KEY" > "$RUNNER_TEMP/ec2.pem"
+          ssh -i "$RUNNER_TEMP/ec2.pem" -o StrictHostKeyChecking=accept-new "${USER}@${HOST}" 'bash -s' < scripts/prune-docker-images.sh
+
       - name: Load images onto EC2
         env:
           HOST: ${{ secrets.EC2_HOST }}
@@ -105,5 +116,6 @@ jobs:
               "FIREWEAVE_KEY=${FIREWEAVE_KEY}" \
               > .env
             chmod 600 .env
-            chmod +x scripts/deploy-prod.sh
+            chmod +x scripts/deploy-prod.sh scripts/prune-docker-images.sh
             ./scripts/deploy-prod.sh
+            ./scripts/prune-docker-images.sh

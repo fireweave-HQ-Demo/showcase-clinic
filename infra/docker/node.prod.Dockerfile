@@ -15,6 +15,9 @@ COPY apps/api apps/api
 COPY apps/console apps/console
 COPY packages packages
 ENV NEXT_TELEMETRY_DISABLED=1
+ARG FIREWEAVE_BROWSER_KEY
+ENV FIREWEAVE_BROWSER_KEY=$FIREWEAVE_BROWSER_KEY
+ENV FIREWEAVE_ENV=production
 RUN pnpm --filter @clinic/console build \
   && pnpm --filter @clinic/api deploy --prod --legacy /out/api
 

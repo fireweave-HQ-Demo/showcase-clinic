@@ -1,11 +1,13 @@
 "use client";
 
+import { fw } from "@fireweaveai/web-sdk/start";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../../../components/Button";
 import { EmptyState } from "../../../components/EmptyState";
 import { Page, PageHeader } from "../../../components/PageHeader";
+import { Skeleton } from "../../../components/Skeleton";
 import { StatusPill } from "../../../components/StatusPill";
 import { useToast } from "../../../components/Toast";
 import { useCounts } from "../../../lib/counts";
@@ -30,9 +32,26 @@ type Referral = {
   sessionId?: string | null;
   createdAt?: string;
   filename?: string;
+  reason?: string | null;
 };
 
 type Audit = { id: string; action: string; subjectId: string; actor: string; createdAt?: string };
+
+const CLOSED = new Set(["complete", "completed", "rejected", "ineligible", "fax_back", "failed"]);
+
+function remainderPanelEnabled() {
+  // @fireweave-controlpoint dashboard-remainder-panel
+  return fw.controlPoints.getBooleanValue("dashboard-remainder-panel", false);
+}
+
+function useRemainderPanel() {
+  const [on, setOn] = useState(false);
+  useEffect(() => {
+    setOn(remainderPanelEnabled());
+    return fw.subscribe(() => setOn(remainderPanelEnabled()));
+  }, []);
+  return on;
+}
 
 export default function DashboardPage() {
   const now = useTick();
@@ -43,6 +62,8 @@ export default function DashboardPage() {
   const [rows, setRows] = useState<Referral[]>([]);
   const [audit, setAudit] = useState<Audit[]>([]);
   const [sending, setSending] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const showRemainder = useRemainderPanel();
 
   useEffect(() => {
     void (async () => {
@@ -60,6 +81,7 @@ export default function DashboardPage() {
       }
       const log = await fetch("/api/audit");
       if (log.ok) setAudit(await log.json());
+      setLoaded(true);
     })();
   }, []);
 
@@ -84,6 +106,7 @@ export default function DashboardPage() {
     window.location.href = "/inbox";
   }
 
+  const remainder = rows.filter((row) => !CLOSED.has(row.status));
   const attention = rows
     .filter((row) => row.status === "awaiting_review" || row.status === "needs_human" || row.status === "ready" || row.status === "flagged")
     .slice(0, 5);
@@ -142,6 +165,33 @@ export default function DashboardPage() {
           <h2>{summary?.authorizations ?? 0}</h2>
         </div>
       </div>
+      {showRemainder ? (
+        <div className="card stack section">
+          <div className="section-head">
+            <h2>Remainder</h2>
+            <Link href="/inbox">{loaded ? `${remainder.length} open` : "Inbox"} →</Link>
+          </div>
+          {!loaded ? (
+            <Skeleton rows={3} />
+          ) : remainder.length === 0 ? (
+            <EmptyState title="Nothing is left open. Upload a referral when the next fax arrives." />
+          ) : (
+            remainder.slice(0, 8).map((row) => (
+              <Link
+                className="attn-row"
+                key={row.id}
+                href={row.status === "writing" && row.sessionId ? `/sessions/${row.sessionId}` : `/hub/${row.id}`}
+              >
+                <span className="patient">{row.patientName ?? row.filename}</span>
+                <StatusPill status={row.status} />
+                <span className="muted">{row.reason ?? "—"}</span>
+                <span className="mono muted">{ago(row.createdAt, now)}</span>
+                <ChevronRight size={16} aria-hidden="true" />
+              </Link>
+            ))
+          )}
+        </div>
+      ) : null}
       <div className="card stack section">
         <div className="section-head">
           <h2>Needs your attention</h2>

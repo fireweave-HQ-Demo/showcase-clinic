@@ -71,6 +71,8 @@ services:
       SANDBOX_PAYER_URL: http://sandbox-payer:4011
       SEED_EMAIL: ${SEED_EMAIL:-staff@demo.clinic}
       SEED_PASSWORD: ${SEED_PASSWORD:-password-demo-1}
+      FIREWEAVE_KEY: ${FIREWEAVE_KEY}
+      FIREWEAVE_ENV: production
       PORT: 4000
     depends_on:
       postgres:
@@ -102,6 +104,8 @@ services:
       BROWSER_RUNNER_URL: http://browser-runner:4020
       SANDBOX_EHR_URL: http://sandbox-ehr:4010
       SANDBOX_PAYER_URL: http://sandbox-payer:4011
+      FIREWEAVE_KEY: ${FIREWEAVE_KEY}
+      FIREWEAVE_ENV: production
       OUTREACH_WAIT_MS: 0
     depends_on:
       api:

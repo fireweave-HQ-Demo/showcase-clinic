@@ -1,1 +1,1 @@
-export const FW_STAMPS = [];
+export const FW_STAMPS = ["stmp_01M5T11QCGVFQC3XGH3CYCWNQT"];

@@ -12,5 +12,7 @@ COPY packages/db/package.json packages/db/package.json
 COPY packages/ui/package.json packages/ui/package.json
 RUN pnpm install --frozen-lockfile
 COPY . .
+# Local image only. Keeps the console on control-point file values during next build.
+ENV FIREWEAVE_ENV=development
 RUN pnpm --filter @clinic/console build && pnpm --filter @clinic/marketing build
 CMD ["pnpm", "--filter", "@clinic/api", "exec", "tsx", "src/server.ts"]

@@ -23,8 +23,12 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build images
+        env:
+          FIREWEAVE_BROWSER_KEY: ${{ secrets.FIREWEAVE_BROWSER_KEY }}
         run: |
-          docker build -f infra/docker/node.prod.Dockerfile -t "$IMAGE" .
+          docker build \
+            --build-arg FIREWEAVE_BROWSER_KEY="$FIREWEAVE_BROWSER_KEY" \
+            -f infra/docker/node.prod.Dockerfile -t "$IMAGE" .
           docker build -f infra/docker/sandbox.Dockerfile -t ghcr.io/fireweave-hq-demo/clinic-sandbox:prod .
           docker build -f infra/docker/agent.Dockerfile -t ghcr.io/fireweave-hq-demo/clinic-agent:prod .
           docker build -f infra/docker/browser.prod.Dockerfile -t ghcr.io/fireweave-hq-demo/clinic-browser:prod .
@@ -61,6 +65,7 @@ jobs:
           OO_QUERY_ENDPOINT: ${{ secrets.OO_QUERY_ENDPOINT }}
           OO_AUTHORIZATION: ${{ secrets.OO_AUTHORIZATION }}
           OO_STREAM: ${{ secrets.OO_STREAM }}
+          FIREWEAVE_KEY: ${{ secrets.FIREWEAVE_KEY }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
@@ -68,7 +73,7 @@ jobs:
           port: 22
           timeout: 20s
           command_timeout: 600s
-          envs: GH_TOKEN,PUBLIC_URL,POSTGRES_PASSWORD,MINIO_ROOT_USER,MINIO_ROOT_PASSWORD,CLINIC_DATA_KEY,BETTER_AUTH_SECRET,INTERNAL_TOKEN,SEED_EMAIL,SEED_PASSWORD,OO_OTLP_ENDPOINT,OO_QUERY_ENDPOINT,OO_AUTHORIZATION,OO_STREAM
+          envs: GH_TOKEN,PUBLIC_URL,POSTGRES_PASSWORD,MINIO_ROOT_USER,MINIO_ROOT_PASSWORD,CLINIC_DATA_KEY,BETTER_AUTH_SECRET,INTERNAL_TOKEN,SEED_EMAIL,SEED_PASSWORD,OO_OTLP_ENDPOINT,OO_QUERY_ENDPOINT,OO_AUTHORIZATION,OO_STREAM,FIREWEAVE_KEY
           script: |
             set -euo pipefail
             APP_DIR="$HOME/showcase-clinic"
@@ -97,6 +102,7 @@ jobs:
               "OO_QUERY_ENDPOINT=${OO_QUERY_ENDPOINT}" \
               "OO_AUTHORIZATION=${OO_AUTHORIZATION}" \
               "OO_STREAM=${OO_STREAM:-clinic}" \
+              "FIREWEAVE_KEY=${FIREWEAVE_KEY}" \
               > .env
             chmod 600 .env
             chmod +x scripts/deploy-prod.sh

@@ -1,11 +1,14 @@
 "use client";
 
+import { createAuthClient } from "better-auth/react";
 import Link from "next/link";
 import { useState } from "react";
 import { fw } from "@fireweaveai/web-sdk/start";
 import { Button } from "../../components/Button";
 import { COPY } from "../../lib/copy";
 import { ERROR_CODES } from "../../lib/errors";
+
+const authClient = createAuthClient();
 
 export default function LoginPage() {
   const [error, setError] = useState("");
@@ -16,19 +19,18 @@ export default function LoginPage() {
     setError("");
     setPending(true);
     const form = new FormData(event.currentTarget);
-    const res = await fetch("/api/auth/sign-in/email", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ email: form.get("email"), password: form.get("password") }),
+    const email = String(form.get("email") ?? "");
+    const { data, error: signInError } = await authClient.signIn.email({
+      email,
+      password: String(form.get("password") ?? ""),
     });
-    if (!res.ok) {
+    if (signInError) {
       setPending(false);
       setError(COPY.signInError);
       return;
     }
-    const body = (await res.json().catch(() => null)) as { user?: { id?: string; email?: string } } | null;
-    if (body?.user?.id) {
-      await fw.identify(body.user.id, { email: body.user.email ?? String(form.get("email") ?? "") });
+    if (data?.user?.id) {
+      await fw.identify(data.user.id, { email: data.user.email ?? email });
     }
     window.location.href = "/inbox";
   }

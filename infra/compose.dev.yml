@@ -1,0 +1,59 @@
+# Overlay for make up / make dev. Host source is mounted so edits land without rebuilding.
+# Stage and prod laptop sims keep infra/compose.yml alone (baked image).
+
+x-api-src: &api-src
+  - ../apps/api/src:/app/apps/api/src
+  - ../packages/contracts/src:/app/packages/contracts/src
+  - ../packages/domain/src:/app/packages/domain/src
+  - ../packages/db/src:/app/packages/db/src
+  - ../packages/db/migrations:/app/packages/db/migrations
+
+x-console-src: &console-src
+  - ../apps/console/app:/app/apps/console/app
+  - ../apps/console/components:/app/apps/console/components
+  - ../apps/console/lib:/app/apps/console/lib
+  - ../apps/console/public:/app/apps/console/public
+  - ../apps/console/next.config.ts:/app/apps/console/next.config.ts
+  - ../packages/ui:/app/packages/ui
+
+services:
+  api:
+    command: ["pnpm", "--filter", "@clinic/api", "exec", "tsx", "watch", "src/server.ts"]
+    volumes: *api-src
+
+  worker:
+    command: ["pnpm", "--filter", "@clinic/api", "exec", "tsx", "watch", "src/worker.ts"]
+    volumes: *api-src
+
+  console:
+    command: ["pnpm", "--filter", "@clinic/console", "exec", "next", "dev", "--hostname", "0.0.0.0", "--port", "3000"]
+    environment:
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+    volumes: *console-src
+
+  marketing:
+    command: ["pnpm", "--filter", "@clinic/marketing", "exec", "next", "dev", "--hostname", "0.0.0.0", "--port", "3001"]
+    environment:
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+    volumes:
+      - ../apps/marketing/app:/app/apps/marketing/app
+      - ../packages/ui:/app/packages/ui
+
+  sandbox-ehr:
+    volumes:
+      - ../apps/sandbox-ehr/server.py:/ehr.py
+
+  sandbox-payer:
+    volumes:
+      - ../apps/sandbox-payer/server.py:/payer.py
+
+  browser-runner:
+    volumes:
+      - ../apps/browser-runner/server.py:/app/server.py
+
+  agent-worker:
+    volumes:
+      - ../apps/agent-worker:/app
+      - ../fixtures:/fixtures

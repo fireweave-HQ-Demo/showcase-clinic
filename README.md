@@ -26,6 +26,8 @@ Three laptop stacks share `infra/compose.yml` and stay isolated by `infra/env/de
 
 Password for all three is `password-demo-1`. `make seed` also adds 100 accounts in that env's email groups: `desk` / `nursing` / `physicians` / `billing` at `dev.clinic`, `intake` / `clinical` / `providers` / `revenue` at `stage.clinic`, and `frontdesk` / `care` / `attendings` / `claims` at `prod.clinic`. Example: `desk.01@dev.clinic`. The physician, provider, and attending groups are doctors. `make down`, `make stage-down`, and `make prod-sim-down` stop one stack and keep its volumes.
 
+`make up` mounts host `apps/` and `packages/` source and runs `tsx watch` / `next dev`, so console and API edits show up without rebuilding. Rebuild when `package.json` or the lockfile changes. Stage and prod laptop sims stay on the baked image.
+
 ## EC2
 
 | | EC2 |

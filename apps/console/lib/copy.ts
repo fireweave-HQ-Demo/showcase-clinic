@@ -18,7 +18,6 @@ export const COPY = {
   confirmReject: "Reject this referral? The workflow will close and the chart will not be written.",
   confirmFlag: "Flag this referral? It will leave the queue until a person looks at it.",
   signInError: "Check the email and password.",
-  acceptTerms: "I accept the Terms of Service and Privacy Policy.",
   signUpError: "Could not create the account.",
   clinicError: "The account exists, but the clinic was not created.",
   addDoctor: "Add doctor",

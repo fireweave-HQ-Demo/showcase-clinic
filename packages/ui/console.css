@@ -381,6 +381,8 @@ button.primary:disabled, a.primary[aria-disabled="true"] {
   padding: 28px;
 }
 .auth-card h1 { font-size: 24px; margin: 0; }
+.auth-check { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: var(--c-muted); cursor: pointer; }
+.auth-check input { margin: 2px 0 0; }
 .progress { display: grid; gap: 8px; padding: 0; margin: 0; }
 .progress li { list-style: none; color: var(--c-muted); font-size: 13px; }
 .progress li.on { color: var(--c-ok); font-weight: 650; }
